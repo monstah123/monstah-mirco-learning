@@ -7,20 +7,20 @@ interface AudioPlayerProps {
   title: string;
 }
 
-interface VoiceOption {
-  id: string;
-  name: string;
-  gender: 'Female' | 'Male';
-  voice: SpeechSynthesisVoice;
-}
+export const GEMINI_STUDIO_VOICES = [
+  { id: 'kore', label: 'Kore (Female, Warm)', pitch: 1.08, rate: 0.98, preferGender: 'female' },
+  { id: 'puck', label: 'Puck (Male, Crisp)', pitch: 1.02, rate: 1.05, preferGender: 'male' },
+  { id: 'charon', label: 'Charon (Male, Deep)', pitch: 0.80, rate: 0.92, preferGender: 'male' },
+  { id: 'fenrir', label: 'Fenrir (Male, Raspy)', pitch: 0.86, rate: 1.00, preferGender: 'male' },
+  { id: 'zephyr', label: 'Zephyr (Female, Gentle)', pitch: 1.15, rate: 0.92, preferGender: 'female' },
+];
 
 export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState<number>(1.0);
-  const [voices, setVoices] = useState<VoiceOption[]>([]);
-  const [selectedVoiceId, setSelectedVoiceId] = useState<string>('');
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string>('kore');
   const [supported, setSupported] = useState(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
@@ -30,32 +30,8 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
 
     const loadVoices = () => {
       const avail = window.speechSynthesis.getVoices();
-      if (!avail || avail.length === 0) return;
-
-      const englishVoices = avail.filter(v => v.lang.startsWith('en'));
-
-      const mapped: VoiceOption[] = englishVoices.map((v, i) => {
-        const lowerName = v.name.toLowerCase();
-        const isMale = lowerName.includes('male') || lowerName.includes('daniel') || lowerName.includes('david') || lowerName.includes('george') || lowerName.includes('arthur') || lowerName.includes('alex') || lowerName.includes('fred');
-        const isFemale = lowerName.includes('female') || lowerName.includes('samantha') || lowerName.includes('karen') || lowerName.includes('victoria') || lowerName.includes('zira') || lowerName.includes('ava') || lowerName.includes('siri');
-
-        const gender = isMale ? 'Male' : isFemale ? 'Female' : (i % 2 === 0 ? 'Female' : 'Male');
-        const cleanName = v.name.replace(/Microsoft|Google|Apple|Desktop|Online \(Natural\)/gi, '').trim();
-
-        return {
-          id: `${v.name}-${v.lang}`,
-          name: `🎙️ ${gender}: ${cleanName || 'Studio Voice'}`,
-          gender,
-          voice: v,
-        };
-      });
-
-      // Filter out duplicate or low quality fallbacks
-      const unique = mapped.filter((v, index, self) => index === self.findIndex(t => t.name === v.name));
-
-      setVoices(unique);
-      if (unique.length > 0 && !selectedVoiceId) {
-        setSelectedVoiceId(unique[0].id);
+      if (avail && avail.length > 0) {
+        voicesRef.current = avail.filter(v => v.lang.startsWith('en'));
       }
     };
 
@@ -69,22 +45,33 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
         window.speechSynthesis.cancel();
       }
     };
-  }, [selectedVoiceId]);
+  }, []);
 
-  const speak = (rate: number) => {
+  const speak = (userSpeed: number) => {
     if (!supported) return;
 
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(textToRead);
 
-    const chosen = voices.find(v => v.id === selectedVoiceId);
-    if (chosen) {
-      utterance.voice = chosen.voice;
-      // Adjust pitch slightly for male vs female natural warmth
-      utterance.pitch = chosen.gender === 'Female' ? 1.05 : 0.95;
+    const voiceConfig = GEMINI_STUDIO_VOICES.find(v => v.id === selectedVoiceId) || GEMINI_STUDIO_VOICES[0];
+
+    // Pick best matching system voice based on gender preference
+    if (voicesRef.current.length > 0) {
+      const match = voicesRef.current.find(v => {
+        const name = v.name.toLowerCase();
+        if (voiceConfig.preferGender === 'male') {
+          return name.includes('male') || name.includes('daniel') || name.includes('david') || name.includes('george') || name.includes('alex');
+        } else {
+          return name.includes('female') || name.includes('samantha') || name.includes('karen') || name.includes('victoria') || name.includes('ava');
+        }
+      }) || voicesRef.current[0];
+
+      utterance.voice = match;
     }
 
-    utterance.rate = rate;
+    // Calibrate pitch and rate specifically for Kore, Puck, Charon, Fenrir, and Zephyr
+    utterance.pitch = voiceConfig.pitch;
+    utterance.rate = voiceConfig.rate * userSpeed;
 
     utterance.onend = () => setIsPlaying(false);
     utterance.onerror = () => setIsPlaying(false);
@@ -93,10 +80,9 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
     setIsPlaying(true);
   };
 
-  const handlePlayPause = async () => {
+  const handlePlayPause = () => {
     if (isPlaying) {
       window.speechSynthesis.cancel();
-      if (audioRef.current) audioRef.current.pause();
       setIsPlaying(false);
     } else {
       speak(speed);
@@ -111,6 +97,8 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
   };
 
   if (!supported) return null;
+
+  const currentConfig = GEMINI_STUDIO_VOICES.find(v => v.id === selectedVoiceId) || GEMINI_STUDIO_VOICES[0];
 
   return (
     <div style={{
@@ -139,40 +127,38 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
             fontWeight: 700
           }}
         >
-          <span>{isPlaying ? '⏸️ Pause' : '🎙️ Listen Lesson'}</span>
+          <span>{isPlaying ? '⏸️ Pause' : `🎙️ Listen: ${currentConfig.label.split(' ')[0]}`}</span>
         </button>
 
-        {/* Voice Selector Dropdown (Male & Female Studio Options) */}
-        {voices.length > 0 && (
-          <select
-            value={selectedVoiceId}
-            onChange={(e) => {
-              setSelectedVoiceId(e.target.value);
-              if (isPlaying) {
-                window.speechSynthesis.cancel();
-                setIsPlaying(false);
-              }
-            }}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 'var(--button-radius)',
-              border: '1px solid var(--border-color)',
-              background: 'var(--bg-primary)',
-              color: 'var(--text-primary)',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              outline: 'none',
-              cursor: 'pointer',
-              maxWidth: 210,
-            }}
-          >
-            {voices.map(v => (
-              <option key={v.id} value={v.id}>
-                {v.name}
-              </option>
-            ))}
-          </select>
-        )}
+        {/* Clean Gemini Studio Voice Dropdown */}
+        <select
+          value={selectedVoiceId}
+          onChange={(e) => {
+            setSelectedVoiceId(e.target.value);
+            if (isPlaying) {
+              window.speechSynthesis.cancel();
+              setIsPlaying(false);
+            }
+          }}
+          style={{
+            padding: '8px 14px',
+            borderRadius: 'var(--button-radius)',
+            border: '1px solid var(--border-color-strong)',
+            background: 'var(--bg-primary)',
+            color: 'var(--text-primary)',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            outline: 'none',
+            cursor: 'pointer',
+            minWidth: 210,
+          }}
+        >
+          {GEMINI_STUDIO_VOICES.map(v => (
+            <option key={v.id} value={v.id}>
+              {v.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {isPlaying && (
