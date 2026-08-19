@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTheme } from './ThemeProvider';
 import { useEffect, useState } from 'react';
@@ -55,6 +56,7 @@ export default function Navbar() {
   const navLinks = [
     { href: '/home', label: 'Home', icon: '🏠' },
     { href: '/topics', label: 'Explore', icon: '🔍' },
+    { href: '/leaderboard', label: 'Ranks', icon: '🏆' },
     { href: '/progress', label: 'Progress', icon: '📊' },
   ];
 
@@ -63,8 +65,18 @@ export default function Navbar() {
       <nav className="navbar">
         <div className="navbar-inner">
           <Link href={isLanding ? '/' : '/home'} className="navbar-brand">
-            <span className="navbar-brand-icon">🧠</span>
-            <span>Monstah</span>
+            <div className="logo-brush-glow" style={{ width: 34, height: 34, borderRadius: 10, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Image
+                src="/icon.png"
+                alt="Monstah Logo"
+                width={34}
+                height={34}
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
+            <span style={{ fontWeight: 800, background: 'linear-gradient(135deg, var(--primary-500) 0%, #3498DB 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Monstah
+            </span>
           </Link>
 
           {!isLanding && (

@@ -6,6 +6,7 @@ import { getLessonById, getTopicById } from '@/lib/content';
 import { completeLesson, getProgress, getCustomTopicPackages } from '@/lib/storage';
 import { syncUserProgressToCloud } from '@/lib/cloudStorage';
 import { Lesson, Topic } from '@/lib/types';
+import AudioPlayer from '@/components/AudioPlayer';
 
 export default function LessonPage({ params }: { params: Promise<{ topicId: string; lessonId: string }> }) {
   const { topicId, lessonId } = use(params);
@@ -15,11 +16,9 @@ export default function LessonPage({ params }: { params: Promise<{ topicId: stri
   const [topic, setTopic] = useState<Topic | undefined>(undefined);
 
   useEffect(() => {
-    // 1. Try static content library
     let foundLesson = getLessonById(lessonId);
     let foundTopic = getTopicById(topicId);
 
-    // 2. Fallback to custom AI-generated content in localStorage
     if (!foundLesson || !foundTopic) {
       const customPackages = getCustomTopicPackages();
       const customPkg = customPackages.find(p => p.lesson.id === lessonId || p.topic.id === topicId);
@@ -115,6 +114,14 @@ export default function LessonPage({ params }: { params: Promise<{ topicId: stri
             <div className="progress-bar-fill" style={{ width: `${progressPct}%` }} />
           </div>
         </div>
+
+        {/* Audio Listen Mode */}
+        {!completed && (
+          <AudioPlayer
+            textToRead={`${card.title}. ${card.content}`}
+            title={`Card ${currentCard + 1}: ${card.title}`}
+          />
+        )}
 
         {/* Completed state */}
         {completed && currentCard === cards.length - 1 ? (
