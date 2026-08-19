@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface AudioPlayerProps {
   textToRead: string;
@@ -11,10 +11,38 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState<number>(1.0);
   const [supported, setSupported] = useState(true);
+  const selectedVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       setSupported(false);
+      return;
+    }
+
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices || voices.length === 0) return;
+
+      // Select high-quality, human/natural neural voice
+      const naturalVoice = voices.find(v =>
+        v.lang.startsWith('en') && (
+          v.name.includes('Natural') ||
+          v.name.includes('Google') ||
+          v.name.includes('Enhanced') ||
+          v.name.includes('Premium') ||
+          v.name.includes('Samantha') ||
+          v.name.includes('Daniel') ||
+          v.name.includes('Karen') ||
+          v.name.includes('Serena')
+        )
+      ) || voices.find(v => v.lang.startsWith('en-US')) || voices[0];
+
+      selectedVoiceRef.current = naturalVoice;
+    };
+
+    loadVoices();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
     }
 
     return () => {
@@ -24,40 +52,39 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
     };
   }, []);
 
-  const handlePlayPause = () => {
+  const speakText = (rate: number) => {
     if (!supported) return;
 
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(textToRead);
+
+    if (selectedVoiceRef.current) {
+      utterance.voice = selectedVoiceRef.current;
+    }
+
+    utterance.rate = rate;
+    utterance.pitch = 1.02; // Warm natural pitch inflection
+
+    utterance.onend = () => setIsPlaying(false);
+    utterance.onerror = () => setIsPlaying(false);
+
+    window.speechSynthesis.speak(utterance);
+    setIsPlaying(true);
+  };
+
+  const handlePlayPause = () => {
     if (isPlaying) {
       window.speechSynthesis.cancel();
       setIsPlaying(false);
     } else {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(textToRead);
-      utterance.rate = speed;
-      utterance.pitch = 1.0;
-
-      utterance.onend = () => {
-        setIsPlaying(false);
-      };
-
-      utterance.onerror = () => {
-        setIsPlaying(false);
-      };
-
-      window.speechSynthesis.speak(utterance);
-      setIsPlaying(true);
+      speakText(speed);
     }
   };
 
   const handleSpeedChange = (newSpeed: number) => {
     setSpeed(newSpeed);
     if (isPlaying) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(textToRead);
-      utterance.rate = newSpeed;
-      utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = () => setIsPlaying(false);
-      window.speechSynthesis.speak(utterance);
+      speakText(newSpeed);
     }
   };
 
@@ -90,7 +117,7 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
             fontWeight: 700
           }}
         >
-          <span>{isPlaying ? '⏸️ Pause' : '🔊 Listen'}</span>
+          <span>{isPlaying ? '⏸️ Pause' : '🎙️ Listen (Natural Voice)'}</span>
         </button>
         <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
           {title}
