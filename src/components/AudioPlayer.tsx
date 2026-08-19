@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface AudioPlayerProps {
   textToRead: string;
@@ -22,16 +22,32 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
   const [selectedVoiceId, setSelectedVoiceId] = useState<string>('kore');
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Reset audio cache when card text or voice changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsPlaying(false);
+    setLoading(false);
+  }, [textToRead, selectedVoiceId]);
+
   const handlePlayPause = async () => {
     if (isPlaying) {
       if (audioRef.current) {
         audioRef.current.pause();
       }
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
       setIsPlaying(false);
       return;
     }
 
-    // If audio element already exists and has source loaded, resume
+    // If audio element already exists for THIS text, resume
     if (audioRef.current && audioRef.current.src) {
       audioRef.current.playbackRate = speed;
       audioRef.current.play();
@@ -84,13 +100,6 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
 
   const handleVoiceChange = (newVoiceId: string) => {
     setSelectedVoiceId(newVoiceId);
-    if (isPlaying && audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-      setIsPlaying(false);
-    } else {
-      audioRef.current = null;
-    }
   };
 
   const currentConfig = GEMINI_STUDIO_VOICES.find(v => v.id === selectedVoiceId) || GEMINI_STUDIO_VOICES[0];
