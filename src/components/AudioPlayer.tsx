@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 
 interface AudioPlayerProps {
   textToRead: string;
@@ -8,95 +8,90 @@ interface AudioPlayerProps {
 }
 
 export const GEMINI_STUDIO_VOICES = [
-  { id: 'kore', label: 'Kore (Female, Warm)', pitch: 1.08, rate: 0.98, preferGender: 'female' },
-  { id: 'puck', label: 'Puck (Male, Crisp)', pitch: 1.02, rate: 1.05, preferGender: 'male' },
-  { id: 'charon', label: 'Charon (Male, Deep)', pitch: 0.80, rate: 0.92, preferGender: 'male' },
-  { id: 'fenrir', label: 'Fenrir (Male, Raspy)', pitch: 0.86, rate: 1.00, preferGender: 'male' },
-  { id: 'zephyr', label: 'Zephyr (Female, Gentle)', pitch: 1.15, rate: 0.92, preferGender: 'female' },
+  { id: 'kore', label: 'Kore (Female, Warm)' },
+  { id: 'puck', label: 'Puck (Male, Crisp)' },
+  { id: 'charon', label: 'Charon (Male, Deep)' },
+  { id: 'fenrir', label: 'Fenrir (Male, Raspy)' },
+  { id: 'zephyr', label: 'Zephyr (Female, Gentle)' },
 ];
 
 export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [speed, setSpeed] = useState<number>(1.0);
   const [selectedVoiceId, setSelectedVoiceId] = useState<string>('kore');
-  const [supported, setSupported] = useState(true);
-  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      setSupported(false);
+  const handlePlayPause = async () => {
+    if (isPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setIsPlaying(false);
       return;
     }
 
-    const loadVoices = () => {
-      const avail = window.speechSynthesis.getVoices();
-      if (avail && avail.length > 0) {
-        voicesRef.current = avail.filter(v => v.lang.startsWith('en'));
-      }
-    };
-
-    loadVoices();
-    if (window.speechSynthesis.onvoiceschanged !== undefined) {
-      window.speechSynthesis.onvoiceschanged = loadVoices;
+    // If audio element already exists and has source loaded, resume
+    if (audioRef.current && audioRef.current.src) {
+      audioRef.current.playbackRate = speed;
+      audioRef.current.play();
+      setIsPlaying(true);
+      return;
     }
 
-    return () => {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+    setLoading(true);
+    try {
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: textToRead, voiceId: selectedVoiceId }),
+      });
+
+      const data = await response.json();
+
+      if (data.audioContent) {
+        const audio = new Audio(data.audioContent);
+        audio.playbackRate = speed;
+        audioRef.current = audio;
+
+        audio.onended = () => setIsPlaying(false);
+        audio.onerror = () => setIsPlaying(false);
+
+        await audio.play();
+        setIsPlaying(true);
+      } else {
+        // Fallback to browser TTS if API encounters limit
+        const utterance = new SpeechSynthesisUtterance(textToRead);
+        utterance.rate = speed;
+        utterance.onend = () => setIsPlaying(false);
+        utterance.onerror = () => setIsPlaying(false);
+        window.speechSynthesis.speak(utterance);
+        setIsPlaying(true);
       }
-    };
-  }, []);
-
-  const speak = (userSpeed: number) => {
-    if (!supported) return;
-
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(textToRead);
-
-    const voiceConfig = GEMINI_STUDIO_VOICES.find(v => v.id === selectedVoiceId) || GEMINI_STUDIO_VOICES[0];
-
-    // Pick best matching system voice based on gender preference
-    if (voicesRef.current.length > 0) {
-      const match = voicesRef.current.find(v => {
-        const name = v.name.toLowerCase();
-        if (voiceConfig.preferGender === 'male') {
-          return name.includes('male') || name.includes('daniel') || name.includes('david') || name.includes('george') || name.includes('alex');
-        } else {
-          return name.includes('female') || name.includes('samantha') || name.includes('karen') || name.includes('victoria') || name.includes('ava');
-        }
-      }) || voicesRef.current[0];
-
-      utterance.voice = match;
-    }
-
-    // Calibrate pitch and rate specifically for Kore, Puck, Charon, Fenrir, and Zephyr
-    utterance.pitch = voiceConfig.pitch;
-    utterance.rate = voiceConfig.rate * userSpeed;
-
-    utterance.onend = () => setIsPlaying(false);
-    utterance.onerror = () => setIsPlaying(false);
-
-    window.speechSynthesis.speak(utterance);
-    setIsPlaying(true);
-  };
-
-  const handlePlayPause = () => {
-    if (isPlaying) {
-      window.speechSynthesis.cancel();
-      setIsPlaying(false);
-    } else {
-      speak(speed);
+    } catch (err) {
+      console.error('Audio playback error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSpeedChange = (newSpeed: number) => {
     setSpeed(newSpeed);
-    if (isPlaying) {
-      speak(newSpeed);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = newSpeed;
     }
   };
 
-  if (!supported) return null;
+  const handleVoiceChange = (newVoiceId: string) => {
+    setSelectedVoiceId(newVoiceId);
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setIsPlaying(false);
+    } else {
+      audioRef.current = null;
+    }
+  };
 
   const currentConfig = GEMINI_STUDIO_VOICES.find(v => v.id === selectedVoiceId) || GEMINI_STUDIO_VOICES[0];
 
@@ -117,6 +112,7 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
         <button
           onClick={handlePlayPause}
+          disabled={loading}
           className={`btn ${isPlaying ? 'btn-primary' : 'btn-secondary'} btn-sm`}
           style={{
             borderRadius: '50px',
@@ -127,19 +123,23 @@ export default function AudioPlayer({ textToRead, title }: AudioPlayerProps) {
             fontWeight: 700
           }}
         >
-          <span>{isPlaying ? '⏸️ Pause' : `🎙️ Listen: ${currentConfig.label.split(' ')[0]}`}</span>
+          {loading ? (
+            <>
+              <span className="spinner" style={{ animation: 'rotate 1s linear infinite' }}>⚙️</span>
+              Synthesizing HD Audio...
+            </>
+          ) : (
+            <>
+              <span>{isPlaying ? '⏸️ Pause' : `🎙️ Listen: ${currentConfig.label.split(' ')[0]}`}</span>
+            </>
+          )}
         </button>
 
-        {/* Clean Gemini Studio Voice Dropdown */}
+        {/* Gemini Studio Voice Dropdown */}
         <select
           value={selectedVoiceId}
-          onChange={(e) => {
-            setSelectedVoiceId(e.target.value);
-            if (isPlaying) {
-              window.speechSynthesis.cancel();
-              setIsPlaying(false);
-            }
-          }}
+          onChange={(e) => handleVoiceChange(e.target.value)}
+          disabled={loading}
           style={{
             padding: '8px 14px',
             borderRadius: 'var(--button-radius)',
