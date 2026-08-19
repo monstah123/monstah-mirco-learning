@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { use, useState, useEffect } from 'react';
 import { getLessonById, getTopicById } from '@/lib/content';
 import { completeLesson, getProgress, getCustomTopicPackages } from '@/lib/storage';
+import { syncUserProgressToCloud } from '@/lib/cloudStorage';
 import { Lesson, Topic } from '@/lib/types';
 
 export default function LessonPage({ params }: { params: Promise<{ topicId: string; lessonId: string }> }) {
@@ -56,9 +57,10 @@ export default function LessonPage({ params }: { params: Promise<{ topicId: stri
   const card = cards[currentCard];
   const progressPct = ((currentCard + 1) / cards.length) * 100;
 
-  const handleComplete = () => {
-    completeLesson(lesson.id, topicId);
+  const handleComplete = async () => {
+    const updatedProgress = completeLesson(lesson.id, topicId);
     setCompleted(true);
+    await syncUserProgressToCloud(updatedProgress);
   };
 
   const handleNext = () => {

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { use, useState, useEffect } from 'react';
 import { getQuizByLessonId, getTopicById, getLessonById } from '@/lib/content';
 import { saveQuizScore, getCustomTopicPackages } from '@/lib/storage';
+import { syncUserProgressToCloud } from '@/lib/cloudStorage';
 import { Quiz, Lesson, Topic } from '@/lib/types';
 
 export default function QuizPage({ params }: { params: Promise<{ topicId: string; lessonId: string }> }) {
@@ -68,10 +69,11 @@ export default function QuizPage({ params }: { params: Promise<{ topicId: string
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (isLastQuestion) {
       const finalScore = score;
-      saveQuizScore(quiz.id, finalScore, questions.length);
+      const updatedProgress = saveQuizScore(quiz.id, finalScore, questions.length);
+      await syncUserProgressToCloud(updatedProgress);
       setFinished(true);
     } else {
       setCurrentQuestion(prev => prev + 1);
