@@ -22,13 +22,21 @@ export interface Lesson {
   order: number;
 }
 
+export interface LessonCardExample {
+  text: string;
+  label?: string; // e.g. "Weak Phrasing", "Winning Script"
+  status?: 'bad' | 'good' | 'best';
+}
+
 export interface LessonCard {
   id: string;
-  type: 'fact' | 'explanation' | 'didYouKnow' | 'keyPoint' | 'visual';
+  type: 'scenario' | 'dialogue' | 'script' | 'fact' | 'explanation' | 'didYouKnow' | 'keyPoint' | 'visual';
   title: string;
   content: string;
   emoji?: string;
   highlight?: string;
+  contextHeader?: string; // e.g., "📋 Intro", "🎬 Scenario", "💬 What to Say"
+  examples?: LessonCardExample[];
 }
 
 export interface Quiz {

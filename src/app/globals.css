@@ -525,6 +525,104 @@ body {
   max-width: 480px;
 }
 
+/* ============================================
+   SmartyMe Scenario & Script Dialogue Styling
+   ============================================ */
+.card-context-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 50px;
+  background: var(--bg-tertiary);
+  color: var(--primary-600);
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.card-scenario-narrative {
+  font-style: italic;
+  font-size: 1.15rem !important;
+  line-height: 1.6 !important;
+  color: var(--text-primary) !important;
+  text-align: left;
+  background: rgba(17, 24, 39, 0.4);
+  padding: 20px 24px;
+  border-radius: 16px;
+  border-left: 4px solid var(--primary-500);
+  margin: 12px 0;
+  width: 100%;
+}
+
+[data-theme='light'] .card-scenario-narrative {
+  background: rgba(241, 245, 249, 0.7);
+}
+
+.dialogue-script-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.dialogue-script-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px 20px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.dialogue-script-card.best {
+  border-color: var(--primary-500);
+  background: rgba(16, 185, 129, 0.08);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12);
+}
+
+.dialogue-script-card.good {
+  border-color: var(--accent-blue);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.dialogue-script-card.bad {
+  border-color: var(--border-color-strong);
+  opacity: 0.85;
+}
+
+.dialogue-script-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 50px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dialogue-script-tag.best {
+  background: var(--primary-500);
+  color: #ffffff;
+}
+
+.dialogue-script-tag.good {
+  background: var(--accent-blue);
+  color: #ffffff;
+}
+
+.dialogue-script-tag.bad {
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+}
+
 .highlight {
   background: linear-gradient(120deg, rgba(16, 185, 129, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%);
   padding: 2px 6px;

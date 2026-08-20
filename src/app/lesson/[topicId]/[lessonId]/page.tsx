@@ -151,15 +151,52 @@ export default function LessonPage({ params }: { params: Promise<{ topicId: stri
             <div
               className={`card lesson-card-content type-${card.type}`}
               key={card.id}
-              style={{ position: 'relative', overflow: 'hidden' }}
+              style={{ position: 'relative', overflow: 'hidden', padding: '36px 24px 32px' }}
             >
               <div style={{ position: 'absolute', top: 12, left: 16, right: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span className="progress-badge in-progress">Card {currentCard + 1} of {cards.length}</span>
                 <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--primary-600)' }}>{Math.round(progressPct)}%</span>
               </div>
-              {card.emoji && <div className="card-emoji" style={{ marginTop: 16 }}>{card.emoji}</div>}
+
+              {card.contextHeader && (
+                <div className="card-context-pill" style={{ marginTop: 14 }}>
+                  {card.contextHeader}
+                </div>
+              )}
+
+              {card.emoji && !card.contextHeader && (
+                <div className="card-emoji" style={{ marginTop: 16 }}>{card.emoji}</div>
+              )}
+
               <h3>{card.title}</h3>
-              <p>{renderContent(card.content, card.highlight)}</p>
+
+              {card.type === 'scenario' ? (
+                <div className="card-scenario-narrative">
+                  &ldquo;{renderContent(card.content, card.highlight)}&rdquo;
+                </div>
+              ) : (
+                <p>{renderContent(card.content, card.highlight)}</p>
+              )}
+
+              {/* SmartyMe Script & Dialogue Phrasing Examples */}
+              {card.examples && card.examples.length > 0 && (
+                <div className="dialogue-script-list">
+                  {card.examples.map((ex, idx) => (
+                    <div
+                      key={idx}
+                      className={`dialogue-script-card ${ex.status || 'good'}`}
+                    >
+                      {ex.label && (
+                        <div className={`dialogue-script-tag ${ex.status || 'good'}`}>
+                          {ex.label}
+                        </div>
+                      )}
+                      <div>&ldquo;{ex.text}&rdquo;</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="card-bottom-progress">
                 <div className="card-bottom-progress-fill" style={{ width: `${progressPct}%` }} />
               </div>

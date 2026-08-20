@@ -27,7 +27,8 @@ export async function generateCustomTopic(userQuery: string): Promise<GeneratedC
   });
 
   const prompt = `You are the master content creator for "Monstah Micro Learning", a exact carbon copy of SmartyMe app.
-SmartyMe cards are ULTRA-CONCISE, SHORT, PUNCHY micro-facts (strictly 1-2 short sentences per card). Never write long paragraphs or multi-line walls of text!
+SmartyMe cards are ULTRA-CONCISE, HIGH-MOTIVATION micro-lessons modeled directly after SmartyMe app.
+Each lesson features vivid real-world scenarios, exact word-for-word script examples (showing weak vs. winning phrasing), and actionable rules of thumb.
 
 The user wants a micro-lesson about: "${userQuery}".
 
@@ -53,29 +54,37 @@ Generate JSON matching this EXACT structure:
     "cards": [
       {
         "id": "card-1",
-        "type": "fact",
-        "title": "Core Fact Title",
-        "content": "Strictly 1-2 short, punchy sentences explaining the core concept. Maximum 25 words!",
-        "emoji": "Relevant emoji"
+        "type": "scenario",
+        "contextHeader": "📋 Scenario Setup",
+        "title": "Real-World Context",
+        "content": "Short 2-sentence vivid situation setup (e.g. 'Late Thursday. You are preparing to discuss a promotion with your lead...').",
+        "emoji": "🎬"
       },
       {
         "id": "card-2",
-        "type": "explanation",
-        "title": "Practical Tip",
-        "content": "Strictly 1-2 short sentences giving an immediate actionable takeaway. Maximum 25 words!",
-        "emoji": "Relevant emoji"
+        "type": "script",
+        "contextHeader": "💬 What to Say",
+        "title": "Winning Script vs Weak Phrasing",
+        "content": "Compare phrasing to handle this situation effectively.",
+        "examples": [
+          { "label": "Weak Phrasing", "text": "A timid or frustrated response that fails.", "status": "bad" },
+          { "label": "Winning Script", "text": "A clear, confident, high-impact exact sentence to say.", "status": "best" }
+        ],
+        "emoji": "🗣️"
       },
       {
         "id": "card-3",
-        "type": "didYouKnow",
-        "title": "Did You Know?",
-        "content": "Strictly 1 short mind-blowing fact sentence (e.g. 'Saying name 2x increases warmth by 38%.'). Maximum 15 words!",
-        "emoji": "🤯",
-        "highlight": "Exact 2-4 word key phrase from the sentence to highlight"
+        "type": "explanation",
+        "contextHeader": "💡 Strategy Breakdown",
+        "title": "Why It Works",
+        "content": "Strictly 1-2 short sentences explaining the psychology behind the winning approach. Maximum 25 words!",
+        "emoji": "🧠",
+        "highlight": "Exact 2-4 word key phrase to highlight"
       },
       {
         "id": "card-4",
         "type": "keyPoint",
+        "contextHeader": "🔑 Golden Rule",
         "title": "Key Takeaway",
         "content": "Strictly 1 short memorable rule of thumb sentence. Maximum 15 words!",
         "emoji": "🔑"
