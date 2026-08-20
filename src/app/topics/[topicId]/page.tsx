@@ -58,30 +58,47 @@ export default function TopicDetailPage({ params }: { params: Promise<{ topicId:
       <div className="lesson-list">
         {lessons.map((lesson, index) => {
           const isCompleted = progress.completedLessons.includes(lesson.id);
+          const cardCount = lesson.cards?.length || 4;
+          const pct = isCompleted ? 100 : 0;
+
           return (
             <Link
               href={`/lesson/${topic.id}/${lesson.id}`}
               key={lesson.id}
               style={{ textDecoration: 'none' }}
             >
-              <div className="card card-clickable lesson-card">
+              <div className="card card-clickable lesson-card" style={{ position: 'relative', overflow: 'hidden' }}>
                 <div
                   className="lesson-card-number"
                   style={{ background: topic.color }}
                 >
                   {index + 1}
                 </div>
-                <div className="lesson-card-info">
+                <div className="lesson-card-info" style={{ flex: 1 }}>
                   <h3>{lesson.title}</h3>
                   <p>{lesson.subtitle}</p>
+                  <div style={{ marginTop: 8 }}>
+                    <div className="progress-bar-container" style={{ height: 6 }}>
+                      <div
+                        className={`progress-bar-fill ${isCompleted ? 'complete' : ''}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="lesson-card-meta">
                   <span className="lesson-card-duration">
                     ⏱️ {lesson.duration} min
                   </span>
-                  <span className={`lesson-card-status ${isCompleted ? 'completed' : ''}`}>
-                    {isCompleted ? '✓' : '→'}
+                  <span className={`progress-badge ${isCompleted ? 'completed' : ''}`}>
+                    {isCompleted ? '✓ Done' : `${cardCount} Cards`}
                   </span>
+                </div>
+                <div className="card-bottom-progress">
+                  <div
+                    className={`card-bottom-progress-fill ${isCompleted ? 'completed' : ''}`}
+                    style={{ width: `${pct}%` }}
+                  />
                 </div>
               </div>
             </Link>

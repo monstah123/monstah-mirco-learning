@@ -110,12 +110,50 @@ export default function ProgressPage() {
           {allAchievementKeys.map(key => {
             const detail = ACHIEVEMENT_DETAILS[key];
             const unlocked = progress.achievements.includes(key);
+            
+            // Calculate progress metric for each achievement
+            const completed = progress.completedLessons.length;
+            const streak = progress.streak;
+            const xp = progress.odometer;
+            const perfectCount = Object.values(progress.quizScores).filter(q => q.score === q.total).length;
+            
+            let current = 0;
+            let target = 1;
+            if (key === 'first_lesson') { current = Math.min(completed, 1); target = 1; }
+            else if (key === 'five_lessons') { current = Math.min(completed, 5); target = 5; }
+            else if (key === 'ten_lessons') { current = Math.min(completed, 10); target = 10; }
+            else if (key === 'three_day_streak') { current = Math.min(streak, 3); target = 3; }
+            else if (key === 'week_streak') { current = Math.min(streak, 7); target = 7; }
+            else if (key === 'xp_500') { current = Math.min(xp, 500); target = 500; }
+            else if (key === 'xp_1000') { current = Math.min(xp, 1000); target = 1000; }
+            else if (key === 'perfect_quiz') { current = Math.min(perfectCount, 1); target = 1; }
+            else if (key === 'five_perfect') { current = Math.min(perfectCount, 5); target = 5; }
+
+            const pct = unlocked ? 100 : Math.round((current / target) * 100);
+
             return (
-              <div className={`card achievement-card ${unlocked ? '' : 'locked'}`} key={key}>
+              <div className={`card achievement-card ${unlocked ? '' : 'locked'}`} key={key} style={{ position: 'relative', overflow: 'hidden' }}>
                 <span className="achievement-icon">{detail.icon}</span>
-                <div className="achievement-info">
+                <div className="achievement-info" style={{ flex: 1 }}>
                   <h4>{detail.name}</h4>
                   <p>{detail.description}</p>
+                  <div style={{ marginTop: 8 }}>
+                    <div className="progress-bar-container" style={{ height: 6 }}>
+                      <div
+                        className={`progress-bar-fill ${unlocked ? 'complete' : ''}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: 4, fontWeight: 700 }}>
+                      {unlocked ? '✓ Unlocked' : `${current}/${target} (${pct}%)`}
+                    </div>
+                  </div>
+                </div>
+                <div className="card-bottom-progress">
+                  <div
+                    className={`card-bottom-progress-fill ${unlocked ? 'completed' : ''}`}
+                    style={{ width: `${pct}%` }}
+                  />
                 </div>
               </div>
             );

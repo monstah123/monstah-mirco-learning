@@ -158,7 +158,7 @@ export default function QuizPage({ params }: { params: Promise<{ topicId: string
         </div>
 
         {/* Question Card */}
-        <div className="card quiz-question-card" key={question.id}>
+        <div className="card quiz-question-card" key={question.id} style={{ position: 'relative', overflow: 'hidden' }}>
           <div className="quiz-question-number">
             Question {currentQuestion + 1} of {questions.length}
             {question.type === 'true_false' && ' • True or False'}
@@ -205,6 +205,9 @@ export default function QuizPage({ params }: { params: Promise<{ topicId: string
               {question.explanation}
             </div>
           )}
+          <div className="card-bottom-progress">
+            <div className="card-bottom-progress-fill" style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }} />
+          </div>
         </div>
 
         {/* Next button */}

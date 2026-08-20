@@ -55,17 +55,26 @@ export default function TopicsPage() {
                       ✨ AI Custom
                     </span>
                   )}
-                  <span className="topic-card-icon">{topic.icon}</span>
-                  <h3>{topic.name}</h3>
-                  <p>{topic.description}</p>
-                  <div style={{ marginBottom: 12 }}>
-                    <div className="progress-bar-container">
-                      <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+                  <div>
+                    <span className="topic-card-icon">{topic.icon}</span>
+                    <h3>{topic.name}</h3>
+                    <p>{topic.description}</p>
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, marginBottom: 6, color: 'var(--text-secondary)' }}>
+                      <span>Progress</span>
+                      <span>{pct}%</span>
+                    </div>
+                    <div className="progress-bar-container" style={{ marginBottom: 12 }}>
+                      <div className={`progress-bar-fill ${pct === 100 ? 'complete' : ''}`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <div className="topic-card-footer">
+                      <span className="topic-card-count">{completed}/{total} completed</span>
+                      <span className="btn btn-sm btn-primary">{pct === 100 ? 'Review ✓' : 'Start →'}</span>
                     </div>
                   </div>
-                  <div className="topic-card-footer">
-                    <span className="topic-card-count">{completed}/{total} completed</span>
-                    <span className="btn btn-sm btn-primary">Start →</span>
+                  <div className="card-bottom-progress">
+                    <div className={`card-bottom-progress-fill ${pct === 100 ? 'completed' : ''}`} style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               </Link>

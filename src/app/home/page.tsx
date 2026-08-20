@@ -81,6 +81,30 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Daily Goal Card */}
+      <div className="card daily-goal-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: '1.8rem' }}>🎯</span>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Daily Goal: 1 Lesson</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                {completedCount > 0 ? "You're building momentum! Keep your streak alive." : "Complete 1 lesson today to hit your daily goal!"}
+              </p>
+            </div>
+          </div>
+          <span className={`progress-badge ${completedCount > 0 ? 'completed' : 'in-progress'}`}>
+            {completedCount > 0 ? '✓ Daily Goal Met' : '0/1 Done'}
+          </span>
+        </div>
+        <div className="progress-bar-container">
+          <div
+            className={`progress-bar-fill ${completedCount > 0 ? 'complete' : ''}`}
+            style={{ width: `${completedCount > 0 ? 100 : 15}%` }}
+          />
+        </div>
+      </div>
+
       {/* AI Generator Banner */}
       <AiTopicGenerator />
 
@@ -101,15 +125,23 @@ export default function HomePage() {
               >
                 {nextLesson.topic.icon}
               </div>
-              <div className="lesson-card-info">
+              <div className="lesson-card-info" style={{ flex: 1 }}>
                 <h3>{nextLesson.lesson.title}</h3>
                 <p>{nextLesson.lesson.subtitle} • {nextLesson.topic.name}</p>
+                <div style={{ marginTop: 8 }}>
+                  <div className="progress-bar-container" style={{ height: 6 }}>
+                    <div className="progress-bar-fill" style={{ width: '25%' }} />
+                  </div>
+                </div>
               </div>
               <div className="lesson-card-meta">
                 <span className="lesson-card-duration">
                   ⏱️ {nextLesson.lesson.duration} min
                 </span>
                 <span className="btn btn-primary btn-sm">Start →</span>
+              </div>
+              <div className="card-bottom-progress">
+                <div className="card-bottom-progress-fill" style={{ width: '25%' }} />
               </div>
             </div>
           </Link>
@@ -123,19 +155,39 @@ export default function HomePage() {
           <Link href="/topics">See all →</Link>
         </div>
         <div className="topics-grid">
-          {allTopics.slice(0, 6).map(topic => (
-            <Link href={`/topics/${topic.id}`} key={topic.id} style={{ textDecoration: 'none' }}>
-              <div className="card card-clickable topic-card" style={{ '--topic-color': topic.color } as React.CSSProperties}>
-                <span className="topic-card-icon">{topic.icon}</span>
-                <h3>{topic.name}</h3>
-                <p>{topic.description}</p>
-                <div className="topic-card-footer">
-                  <span className="topic-card-count">{topic.lessonCount} lessons</span>
-                  <span className="btn btn-sm btn-primary">Explore →</span>
+          {allTopics.slice(0, 6).map(topic => {
+            const completed = progress.topicProgress[topic.id] || 0;
+            const total = topic.lessonCount;
+            const pct = Math.round((completed / total) * 100);
+
+            return (
+              <Link href={`/topics/${topic.id}`} key={topic.id} style={{ textDecoration: 'none' }}>
+                <div className="card card-clickable topic-card" style={{ '--topic-color': topic.color } as React.CSSProperties}>
+                  <div>
+                    <span className="topic-card-icon">{topic.icon}</span>
+                    <h3>{topic.name}</h3>
+                    <p>{topic.description}</p>
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, marginBottom: 6, color: 'var(--text-secondary)' }}>
+                      <span>Progress</span>
+                      <span>{completed}/{total} ({pct}%)</span>
+                    </div>
+                    <div className="progress-bar-container" style={{ marginBottom: 12 }}>
+                      <div className={`progress-bar-fill ${pct === 100 ? 'complete' : ''}`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <div className="topic-card-footer">
+                      <span className="topic-card-count">{topic.lessonCount} lessons</span>
+                      <span className="btn btn-sm btn-primary">Explore →</span>
+                    </div>
+                  </div>
+                  <div className="card-bottom-progress">
+                    <div className={`card-bottom-progress-fill ${pct === 100 ? 'completed' : ''}`} style={{ width: `${pct}%` }} />
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>
