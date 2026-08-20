@@ -6,6 +6,7 @@ import { getQuizByLessonId, getTopicById, getLessonById } from '@/lib/content';
 import { saveQuizScore, getCustomTopicPackages } from '@/lib/storage';
 import { syncUserProgressToCloud } from '@/lib/cloudStorage';
 import { Quiz, Lesson, Topic } from '@/lib/types';
+import { playWinningSound, playLosingSound, playCelebrationSound } from '@/lib/soundEffects';
 
 export default function QuizPage({ params }: { params: Promise<{ topicId: string; lessonId: string }> }) {
   const { topicId, lessonId } = use(params);
@@ -66,6 +67,9 @@ export default function QuizPage({ params }: { params: Promise<{ topicId: string
     const isCorrect = index === question.correctIndex;
     if (isCorrect) {
       setScore(prev => prev + 1);
+      playWinningSound();
+    } else {
+      playLosingSound();
     }
   };
 
@@ -74,6 +78,7 @@ export default function QuizPage({ params }: { params: Promise<{ topicId: string
       const finalScore = score;
       const updatedProgress = saveQuizScore(quiz.id, finalScore, questions.length);
       await syncUserProgressToCloud(updatedProgress);
+      playCelebrationSound();
       setFinished(true);
     } else {
       setCurrentQuestion(prev => prev + 1);
