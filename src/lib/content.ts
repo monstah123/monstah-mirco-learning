@@ -7,6 +7,14 @@ import { Topic, Lesson, Quiz } from './types';
 // ============ TOPICS ============
 export const TOPICS: Topic[] = [
   {
+    id: 'relationships',
+    name: 'Relationships & Dating',
+    icon: '❤️',
+    color: '#FF3366',
+    description: 'Master flirting with confidence, non-verbal chemistry, vocal presence, and deep emotional connection.',
+    lessonCount: 4,
+  },
+  {
     id: 'communication',
     name: 'Communication & Small Talk',
     icon: '🗣️',
@@ -130,6 +138,242 @@ export const TOPICS: Topic[] = [
 
 // ============ LESSONS (Ultra-Short SmartyMe Format) ============
 export const LESSONS: Lesson[] = [
+  // --- RELATIONSHIPS & DATING (Flirting with Confidence) ---
+  {
+    id: 'rel-flirt-1',
+    topicId: 'relationships',
+    title: 'Flirting with Confidence: Playful Banter',
+    subtitle: 'Push-pull dynamics & friction',
+    duration: 3,
+    difficulty: 'beginner',
+    order: 1,
+    cards: [
+      {
+        id: 'rf1-1',
+        type: 'scenario',
+        contextHeader: '📋 Scenario Setup',
+        title: 'The Indecisive Coffee Order',
+        content: 'You are standing in line at a cozy cafe. The person in front of you has been hesitating over the milk menu for two full minutes.',
+        emoji: '☕',
+      },
+      {
+        id: 'rf1-2',
+        type: 'script',
+        contextHeader: '💬 What to Say',
+        title: 'Playful Teasing vs Boring Line',
+        content: 'Compare how gentle teasing creates immediate playful spark vs standard bland compliments:',
+        examples: [
+          {
+            label: 'Bland Line',
+            text: 'You look nice today. Is the coffee here good?',
+            status: 'bad',
+          },
+          {
+            label: 'Safe Line',
+            text: 'Take your time, choosing milk can be tough!',
+            status: 'good',
+          },
+          {
+            label: 'Winning Script',
+            text: 'Are you always this indecisive, or should I order for both of us before the line reaches the street?',
+            status: 'best',
+          },
+        ],
+        emoji: '✨',
+      },
+      {
+        id: 'rf1-3',
+        type: 'didYouKnow',
+        contextHeader: '🧠 Attraction Science',
+        title: 'The Push-Pull Dynamic',
+        content: 'Gentle, lighthearted teasing signals outcome independence and high self-worth, triggering dopamine spikes far faster than early flattery.',
+        emoji: '🤯',
+        highlight: 'signals outcome independence and high self-worth',
+      },
+      {
+        id: 'rf1-4',
+        type: 'keyPoint',
+        contextHeader: '🔑 Golden Rule',
+        title: 'Key Takeaway',
+        content: 'Flirting requires playful friction. Never seek validation early—create a shared joke first.',
+        emoji: '🔑',
+      },
+    ],
+  },
+  {
+    id: 'rel-flirt-2',
+    topicId: 'relationships',
+    title: 'Flirting with Confidence: The Triangular Gaze',
+    subtitle: 'Non-verbal magnetic chemistry',
+    duration: 3,
+    difficulty: 'beginner',
+    order: 2,
+    cards: [
+      {
+        id: 'rf2-1',
+        type: 'scenario',
+        contextHeader: '📋 Scenario Setup',
+        title: 'Across the Room Connection',
+        content: 'You are sitting at a lounge table and lock eyes with someone intriguing across the room. You want to communicate attraction before taking a step.',
+        emoji: '👀',
+      },
+      {
+        id: 'rf2-2',
+        type: 'script',
+        contextHeader: '💬 Non-Verbal Action',
+        title: 'The Triangular Gaze Pattern',
+        content: 'Master the subconscious eye pattern that signals romantic attraction:',
+        examples: [
+          {
+            label: 'Creepy Stare',
+            text: '[Intense 8-second unblinking gaze without smiling]',
+            status: 'bad',
+          },
+          {
+            label: 'Nervous Glance',
+            text: '[Quick look for 0.5s, then immediately darting eyes to the floor]',
+            status: 'bad',
+          },
+          {
+            label: 'Winning Script',
+            text: '[Look at their left eye -> drop gaze to their lips for a split second -> shift to right eye -> slow warm smile]',
+            status: 'best',
+          },
+        ],
+        emoji: '🔺',
+      },
+      {
+        id: 'rf2-3',
+        type: 'explanation',
+        contextHeader: '💡 Neurobiology Insight',
+        title: 'Oxytocin & Eye Contact',
+        content: 'Holding triangular eye contact for 2-3 seconds triggers mutual oxytocin release, signaling safety, interest, and magnetic chemistry.',
+        emoji: '🤯',
+        highlight: 'triggers mutual oxytocin release',
+      },
+      {
+        id: 'rf2-4',
+        type: 'keyPoint',
+        contextHeader: '🔑 Golden Rule',
+        title: 'Key Takeaway',
+        content: 'Body language speaks before you open your mouth. Open posture + triangular gaze = effortless magnetism.',
+        emoji: '🔑',
+      },
+    ],
+  },
+  {
+    id: 'rel-flirt-3',
+    topicId: 'relationships',
+    title: 'Flirting with Confidence: Vocal Tone & Cadence',
+    subtitle: 'Voice modulation & presence',
+    duration: 4,
+    difficulty: 'intermediate',
+    order: 3,
+    cards: [
+      {
+        id: 'rf3-1',
+        type: 'scenario',
+        contextHeader: '📋 Scenario Setup',
+        title: 'Transitioning to Chemistry',
+        content: 'You’ve been talking about work for 5 minutes. You want to shift the tone from a polite job interview to a magnetic, flirtatious dynamic.',
+        emoji: '🎙️',
+      },
+      {
+        id: 'rf3-2',
+        type: 'script',
+        contextHeader: '💬 Vocal Delivery',
+        title: 'Downspeak & Comfortable Silences',
+        content: 'Notice how slowing down your cadence and dropping vocal pitch at the end of sentences shifts power:',
+        examples: [
+          {
+            label: 'Fast Upspeak (Needy)',
+            text: 'So do you come here a lot? I was thinking maybe we could hang out sometime?',
+            status: 'bad',
+          },
+          {
+            label: 'Winning Script',
+            text: '[Pause 2 seconds, slow down speed] You have a really intriguing energy. Tell me what actually drives you.',
+            status: 'best',
+          },
+        ],
+        emoji: '🌊',
+      },
+      {
+        id: 'rf3-3',
+        type: 'didYouKnow',
+        contextHeader: '🧠 Vocal Acoustics',
+        title: 'Did You Know?',
+        content: 'Dropping your pitch at sentence endings (downspeak) increases perceived charisma by 35% and signals deep composure.',
+        emoji: '🤯',
+        highlight: 'increases perceived charisma by 35%',
+      },
+      {
+        id: 'rf3-4',
+        type: 'keyPoint',
+        contextHeader: '🔑 Golden Rule',
+        title: 'Key Takeaway',
+        content: 'Never rush your words. Being comfortable with pregnant silences transforms tension into desire.',
+        emoji: '🔑',
+      },
+    ],
+  },
+  {
+    id: 'rel-flirt-4',
+    topicId: 'relationships',
+    title: 'Flirting with Confidence: Low-Pressure Invites',
+    subtitle: 'Closing & contact exchange',
+    duration: 4,
+    difficulty: 'intermediate',
+    order: 4,
+    cards: [
+      {
+        id: 'rf4-1',
+        type: 'scenario',
+        contextHeader: '📋 Scenario Setup',
+        title: 'Ending a Great Conversation',
+        content: 'You’ve had a fun 10-minute flirtatious exchange, but your friends are waiting. You want to secure a future date effortlessly before leaving.',
+        emoji: '📱',
+      },
+      {
+        id: 'rf4-2',
+        type: 'script',
+        contextHeader: '💬 What to Say',
+        title: 'Assumptive Framing vs Permission Seeking',
+        content: 'Frame the invitation as a continuation of your shared banter:',
+        examples: [
+          {
+            label: 'Permission Seeking',
+            text: 'Um, would it maybe be okay if I got your number or IG sometime?',
+            status: 'bad',
+          },
+          {
+            label: 'Winning Script',
+            text: 'I have to rejoin my friends, but we still need to debate best taco spots in town. Hand me your phone—let’s swap numbers.',
+            status: 'best',
+          },
+        ],
+        emoji: '🎯',
+      },
+      {
+        id: 'rf4-3',
+        type: 'explanation',
+        contextHeader: '💡 Behavioral Framing',
+        title: 'Specific Low-Pressure Invites',
+        content: 'Linking the invite to a specific shared topic (tacos, espresso, jazz) reduces rejection risk by 60% compared to open-ended "hanging out".',
+        emoji: '🤯',
+        highlight: 'reduces rejection risk by 60%',
+      },
+      {
+        id: 'rf4-4',
+        type: 'keyPoint',
+        contextHeader: '🔑 Golden Rule',
+        title: 'Key Takeaway',
+        content: 'Invite them into your world while energy is at its peak. Always leave them wanting more.',
+        emoji: '🔑',
+      },
+    ],
+  },
+
   // --- SOCIAL / COMMUNICATION ---
   {
     id: 'social-1',
@@ -1586,8 +1830,11 @@ export const LESSONS: Lesson[] = [
   },
 ];
 
-// ============ QUIZZES ============
 export const QUIZZES: Quiz[] = [
+  { id: 'quiz-rel-flirt-1', lessonId: 'rel-flirt-1', topicId: 'relationships', questions: [{ id: 'qrf1-1', type: 'multiple_choice', question: 'What does lighthearted teasing signal?', options: ['Disinterest', 'Outcome independence & confidence', 'Anger', 'Insecurity'], correctIndex: 1, explanation: 'Playful teasing signals self-worth and outcome independence.' }, { id: 'qrf1-2', type: 'true_false', question: 'Validating someone too early builds maximum tension.', options: ['True', 'False'], correctIndex: 1, explanation: 'Early over-validation kills tension; playful friction builds it.' }, { id: 'qrf1-3', type: 'multiple_choice', question: 'Key to initial flirting?', options: ['Interrogation questions', 'Creating a shared joke / playful friction', 'Boasting about wealth', 'Apologizing'], correctIndex: 1, explanation: 'Creating a shared joke establishes connection.' }] },
+  { id: 'quiz-rel-flirt-2', lessonId: 'rel-flirt-2', topicId: 'relationships', questions: [{ id: 'qrf2-1', type: 'multiple_choice', question: 'The Triangular Gaze pattern involves?', options: ['Staring at floor', 'Left eye -> Lips -> Right eye -> Smile', 'Squinting continuously', 'Looking over their shoulder'], correctIndex: 1, explanation: 'Left eye to lips to right eye with a subtle smile.' }, { id: 'qrf2-2', type: 'true_false', question: 'Triangular eye contact triggers oxytocin release.', options: ['True', 'False'], correctIndex: 0, explanation: 'Sustained warm eye contact raises oxytocin.' }, { id: 'qrf2-3', type: 'multiple_choice', question: 'Ideal eye contact duration before smiling?', options: ['0.1 seconds', '2-3 seconds', '20 seconds', '1 minute'], correctIndex: 1, explanation: '2-3 seconds communicates confident interest.' }] },
+  { id: 'quiz-rel-flirt-3', lessonId: 'rel-flirt-3', topicId: 'relationships', questions: [{ id: 'qrf3-1', type: 'multiple_choice', question: 'What is Downspeak?', options: ['Screaming', 'Dropping pitch at sentence endings', 'Speaking super fast', 'Whispering'], correctIndex: 1, explanation: 'Downspeak drops vocal pitch at line ends, projecting composure.' }, { id: 'qrf3-2', type: 'true_false', question: 'Downspeak boosts perceived charisma by 35%.', options: ['True', 'False'], correctIndex: 0, explanation: 'Downspeak signals high composure and status.' }, { id: 'qrf3-3', type: 'multiple_choice', question: 'How to handle comfortable silences?', options: ['Panic and fill with filler words', 'Embrace the silence with slow pacing', 'Check phone immediately', 'Walk away'], correctIndex: 1, explanation: 'Comfort with silence turns tension into magnetic chemistry.' }] },
+  { id: 'quiz-rel-flirt-4', lessonId: 'rel-flirt-4', topicId: 'relationships', questions: [{ id: 'qrf4-1', type: 'multiple_choice', question: 'Best way to ask for a number?', options: ['Assumptive low-pressure invite tied to shared topic', 'Begging for permission', 'Writing it on a napkin secretly', 'Demanding it aggressively'], correctIndex: 0, explanation: 'Tying the exchange to a shared debate/topic makes it seamless.' }, { id: 'qrf4-2', type: 'true_false', question: 'Linking invites to specific topics cuts rejection risk by 60%.', options: ['True', 'False'], correctIndex: 0, explanation: 'Specific context reduces awkwardness.' }, { id: 'qrf4-3', type: 'multiple_choice', question: 'When is the best time to exit an interaction?', options: ['When energy lulls', 'While energy and chemistry are at peak', 'When security arrives', 'After 3 hours'], correctIndex: 1, explanation: 'Exit on a high note while interest is soaring.' }] },
   { id: 'quiz-social-1', lessonId: 'social-1', topicId: 'social-skills', questions: [{ id: 'qsoc1-1', type: 'multiple_choice', question: 'How long does a first impression take?', options: ['30s', '7 seconds', '2m', '5m'], correctIndex: 1, explanation: 'Formed within 7 seconds.' }, { id: 'qsoc1-2', type: 'true_false', question: 'Words make up 90% of impression.', options: ['True', 'False'], correctIndex: 1, explanation: 'Tone & body language make up over 90%.' }, { id: 'qsoc1-3', type: 'multiple_choice', question: 'How much does saying someone\'s name twice boost warmth?', options: ['10%', '20%', '38%', '75%'], correctIndex: 2, explanation: 'Saying name 2x increases warmth by 38%.' }] },
   { id: 'quiz-comm-first-contact', lessonId: 'comm-first-contact', topicId: 'communication', questions: [{ id: 'qcfc-1', type: 'multiple_choice', question: 'Best first contact opener?', options: ['Scripted line', 'Contextual observation about shared space', 'Weather complaint', 'Asking money'], correctIndex: 1, explanation: 'Contextual observations feel natural.' }, { id: 'qcfc-2', type: 'true_false', question: 'Warm statement reduces tension by 45%.', options: ['True', 'False'], correctIndex: 0, explanation: 'Statements require zero pressure to respond.' }, { id: 'qcfc-3', type: 'multiple_choice', question: 'Better than "what do you do"?', options: ['"How much money?"', '"What are you working on that you\'re excited about?"', '"Why alone?"', '"Age?"'], correctIndex: 1, explanation: 'Unlocks passion and story.' }] },
   { id: 'quiz-comm-small-talk', lessonId: 'comm-small-talk', topicId: 'communication', questions: [{ id: 'qcst-1', type: 'multiple_choice', question: 'FORD stands for?', options: ['Fast Open', 'Family, Occupation, Recreation, Dreams', 'Food Outdoor', 'Facts Options'], correctIndex: 1, explanation: 'Family, Occupation, Recreation, Dreams.' }, { id: 'qcst-2', type: 'true_false', question: 'Tiny personal detail builds 2x rapport.', options: ['True', 'False'], correctIndex: 0, explanation: 'Small vulnerability fosters fast connection.' }, { id: 'qcst-3', type: 'multiple_choice', question: 'Conversational Threading?', options: ['Sewing', 'Expanding on keywords from partner\'s sentence', 'Talking over', 'Abrupt change'], correctIndex: 1, explanation: 'Pulls keywords to expand topics.' }] },
