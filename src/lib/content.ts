@@ -624,6 +624,34 @@ export const LESSONS: Lesson[] = [
       },
       {
         id: 'cfc-4',
+        type: 'choice',
+        contextHeader: '🎮 Interactive Decision',
+        title: 'What Would You Say Next?',
+        content: 'They look up from their book, smile, and say: "Yeah, it\'s great! Are you in design too?"',
+        emoji: '🎯',
+        options: [
+          {
+            label: 'Closed Answer',
+            text: 'No, I just saw the cover.',
+            explanation: 'Stops the conversation cold and kills momentum.',
+            status: 'bad',
+          },
+          {
+            label: 'Over-Explaining',
+            text: 'Well actually I\'m in marketing, but I read design blogs on weekends and my cousin is an architect...',
+            explanation: 'Gives too much backstory before rapport is established.',
+            status: 'good',
+          },
+          {
+            label: 'Winning Script',
+            text: 'I\'m in product marketing, but design drives everything I build. What chapter are you on?',
+            explanation: 'Answers with high warmth, establishes shared passion, and flips the open question back!',
+            status: 'best',
+          },
+        ],
+      },
+      {
+        id: 'cfc-5',
         type: 'keyPoint',
         contextHeader: '🔑 Golden Rule',
         title: 'Key Takeaway',
