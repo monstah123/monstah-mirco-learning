@@ -53,8 +53,19 @@ export function updateStreak(): UserProgress {
   const today = new Date().toISOString().split('T')[0];
   const lastActive = progress.lastActiveDate;
 
+  // If streak is 0, initialize it to 1 for today's active visit
+  if (progress.streak === 0) {
+    progress.streak = 1;
+    progress.lastActiveDate = today;
+    if (progress.longestStreak < 1) {
+      progress.longestStreak = 1;
+    }
+    saveProgress(progress);
+    return progress;
+  }
+
   if (lastActive === today) {
-    return progress; // Already active today
+    return progress; // Already active today with a valid streak
   }
 
   const yesterday = new Date();
@@ -64,8 +75,8 @@ export function updateStreak(): UserProgress {
   if (lastActive === yesterdayStr) {
     // Continue streak
     progress.streak += 1;
-  } else if (lastActive !== today) {
-    // Streak broken
+  } else {
+    // Streak broken (last active was prior to yesterday)
     progress.streak = 1;
   }
 
@@ -78,7 +89,7 @@ export function updateStreak(): UserProgress {
 }
 
 export function completeLesson(lessonId: string, topicId: string): UserProgress {
-  const progress = getProgress();
+  const progress = updateStreak();
   if (!progress.completedLessons.includes(lessonId)) {
     progress.completedLessons.push(lessonId);
     progress.odometer += 50; // 50 XP per lesson
@@ -96,7 +107,7 @@ export function completeLesson(lessonId: string, topicId: string): UserProgress 
 }
 
 export function saveQuizScore(quizId: string, score: number, total: number): UserProgress {
-  const progress = getProgress();
+  const progress = updateStreak();
   const quizScore: QuizScore = {
     score,
     total,

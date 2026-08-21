@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { getProgress } from '@/lib/storage';
+import { updateStreak, getProgress } from '@/lib/storage';
+import { syncUserProgressToCloud } from '@/lib/cloudStorage';
 
 interface LeaderboardUser {
   id: string;
@@ -20,6 +21,10 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     async function loadLeaderboard() {
+      // Ensure user streak is active and cloud synced before loading rankings
+      const activeProgress = updateStreak();
+      await syncUserProgressToCloud(activeProgress);
+
       try {
         const { data, error } = await supabase
           .from('user_progress')
@@ -28,19 +33,23 @@ export default function LeaderboardPage() {
           .limit(20);
 
         if (!error && data && data.length > 0) {
-          const formatted: LeaderboardUser[] = data.map((item, index) => ({
-            id: item.id,
-            email: `Learner #${index + 101}`,
-            odometer: item.odometer || 0,
-            streak: item.streak || 0,
-            level: item.level || 1,
-          }));
+          const formatted: LeaderboardUser[] = data.map((item, index) => {
+            const rawStreak = item.streak || 0;
+            const streakVal = rawStreak === 0 && (item.odometer || 0) > 0 ? 1 : rawStreak;
+            return {
+              id: item.id,
+              email: `Learner #${index + 101}`,
+              odometer: item.odometer || 0,
+              streak: streakVal,
+              level: item.level || 1,
+            };
+          });
           setLeaders(formatted);
         } else {
           // Fallback demo rankings if empty
           const localProgress = getProgress();
           setLeaders([
-            { id: 'local', email: 'You (Current User)', odometer: localProgress.odometer, streak: localProgress.streak, level: localProgress.level },
+            { id: 'local', email: 'You (Current User)', odometer: localProgress.odometer, streak: localProgress.streak || 1, level: localProgress.level },
             { id: 'u2', email: 'alex_growth', odometer: 450, streak: 5, level: 3 },
             { id: 'u3', email: 'sam_micro', odometer: 320, streak: 3, level: 2 },
             { id: 'u4', email: 'jordan_wisdom', odometer: 200, streak: 2, level: 2 },
@@ -50,7 +59,7 @@ export default function LeaderboardPage() {
       } catch {
         const localProgress = getProgress();
         setLeaders([
-          { id: 'local', email: 'You (Current User)', odometer: localProgress.odometer, streak: localProgress.streak, level: localProgress.level },
+          { id: 'local', email: 'You (Current User)', odometer: localProgress.odometer, streak: localProgress.streak || 1, level: localProgress.level },
           { id: 'u2', email: 'alex_growth', odometer: 450, streak: 5, level: 3 },
           { id: 'u3', email: 'sam_micro', odometer: 320, streak: 3, level: 2 },
         ].sort((a, b) => b.odometer - a.odometer));
