@@ -5,7 +5,7 @@
 
 let audioCtx: AudioContext | null = null;
 
-function getAudioContext(): AudioContext | null {
+function initAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
   if (!audioCtx) {
     const AudioContextClass =
@@ -15,20 +15,44 @@ function getAudioContext(): AudioContext | null {
       audioCtx = new AudioContextClass();
     }
   }
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
   return audioCtx;
+}
+
+// Global user interaction listener to unlock AudioContext on first tap/click
+if (typeof window !== 'undefined') {
+  const unlockAudio = () => {
+    const ctx = initAudioContext();
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+  };
+  window.addEventListener('click', unlockAudio, { passive: true });
+  window.addEventListener('touchstart', unlockAudio, { passive: true });
+  window.addEventListener('keydown', unlockAudio, { passive: true });
+}
+
+function withActiveAudioContext(callback: (ctx: AudioContext) => void) {
+  try {
+    const ctx = initAudioContext();
+    if (!ctx) return;
+
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        callback(ctx);
+      }).catch((err) => console.warn('Audio resume error:', err));
+    } else {
+      callback(ctx);
+    }
+  } catch (err) {
+    console.warn('Audio error:', err);
+  }
 }
 
 /**
  * Play a cheerful, bright double-chime when the user selects a correct quiz answer
  */
 export function playWinningSound() {
-  try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-
+  withActiveAudioContext((ctx) => {
     const now = ctx.currentTime;
 
     // First bright note (E5 - 659.25Hz)
@@ -54,19 +78,14 @@ export function playWinningSound() {
     gain2.connect(ctx.destination);
     osc2.start(now + 0.1);
     osc2.stop(now + 0.45);
-  } catch (err) {
-    console.warn('Audio play error:', err);
-  }
+  });
 }
 
 /**
  * Play a gentle, descending low tone when the user selects a wrong quiz answer
  */
 export function playLosingSound() {
-  try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-
+  withActiveAudioContext((ctx) => {
     const now = ctx.currentTime;
 
     const osc = ctx.createOscillator();
@@ -81,19 +100,14 @@ export function playLosingSound() {
     gain.connect(ctx.destination);
     osc.start(now);
     osc.stop(now + 0.38);
-  } catch (err) {
-    console.warn('Audio play error:', err);
-  }
+  });
 }
 
 /**
  * Play a fanfare arpeggio upon completing a quiz
  */
 export function playCelebrationSound() {
-  try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-
+  withActiveAudioContext((ctx) => {
     const now = ctx.currentTime;
     const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6 arpeggio
 
@@ -110,7 +124,5 @@ export function playCelebrationSound() {
       osc.start(startTime);
       osc.stop(startTime + 0.35);
     });
-  } catch (err) {
-    console.warn('Audio play error:', err);
-  }
+  });
 }
