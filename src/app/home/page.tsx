@@ -6,10 +6,12 @@ import { TOPICS, getLessonsByTopic, LESSONS } from '@/lib/content';
 import { getProgress, updateStreak, getCustomTopicPackages } from '@/lib/storage';
 import { UserProgress, DEFAULT_PROGRESS } from '@/lib/types';
 import AiTopicGenerator from '@/components/AiTopicGenerator';
+import AiRoleplayModal from '@/components/AiRoleplayModal';
 
 export default function HomePage() {
   const [progress, setProgress] = useState<UserProgress>(DEFAULT_PROGRESS);
   const [customPackages, setCustomPackages] = useState<ReturnType<typeof getCustomTopicPackages>>([]);
+  const [showRoleplayModal, setShowRoleplayModal] = useState(false);
 
   useEffect(() => {
     const p = updateStreak();
@@ -108,6 +110,45 @@ export default function HomePage() {
       {/* AI Generator Banner */}
       <AiTopicGenerator />
 
+      {/* AI Roleplay Practice Banner */}
+      <div
+        className="card"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255, 51, 102, 0.15) 0%, rgba(230, 126, 34, 0.15) 100%)',
+          borderColor: '#FF3366',
+          padding: '20px 24px',
+          margin: '24px 0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 16,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1, minWidth: 260 }}>
+          <div style={{ fontSize: '2.4rem' }}>🤖</div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>Live AI Roleplay Practice</h3>
+            <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+              Practice flirting, small talk, and salary negotiations with Gemini AI partner & get real-time Charisma ratings!
+            </p>
+          </div>
+        </div>
+        <button
+          className="btn btn-primary"
+          onClick={() => setShowRoleplayModal(true)}
+          style={{
+            background: 'linear-gradient(135deg, #FF3366 0%, #E67E22 100%)',
+            border: 'none',
+            padding: '12px 24px',
+            fontSize: '0.95rem',
+            fontWeight: 800,
+          }}
+        >
+          Start AI Roleplay →
+        </button>
+      </div>
+
       {/* Continue Learning */}
       {nextLesson && (
         <div className="dashboard-section">
@@ -190,6 +231,15 @@ export default function HomePage() {
           })}
         </div>
       </div>
+
+      {/* AI Roleplay Practice Modal */}
+      {showRoleplayModal && (
+        <AiRoleplayModal
+          scenarioTitle="High-Status Social Banter & Practice"
+          scenarioDescription="Practice flirting, small talk, or salary negotiations with live Gemini AI partner."
+          onClose={() => setShowRoleplayModal(false)}
+        />
+      )}
     </div>
   );
 }

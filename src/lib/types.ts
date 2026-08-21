@@ -28,15 +28,23 @@ export interface LessonCardExample {
   status?: 'bad' | 'good' | 'best';
 }
 
+export interface LessonDecisionOption {
+  text: string;
+  label?: string; // e.g. "Too Apologetic", "Safe Line", "Winning Script"
+  explanation: string;
+  status: 'bad' | 'good' | 'best';
+}
+
 export interface LessonCard {
   id: string;
-  type: 'scenario' | 'dialogue' | 'script' | 'fact' | 'explanation' | 'didYouKnow' | 'keyPoint' | 'visual';
+  type: 'scenario' | 'dialogue' | 'script' | 'fact' | 'explanation' | 'didYouKnow' | 'keyPoint' | 'visual' | 'choice';
   title: string;
   content: string;
   emoji?: string;
   highlight?: string;
-  contextHeader?: string; // e.g., "📋 Intro", "🎬 Scenario", "💬 What to Say"
+  contextHeader?: string; // e.g., "📋 Intro", "🎬 Scenario", "💬 What to Say", "🎮 Decision Point"
   examples?: LessonCardExample[];
+  options?: LessonDecisionOption[]; // For interactive decision choice cards
 }
 
 export interface Quiz {

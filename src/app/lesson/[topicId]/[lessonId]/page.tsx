@@ -5,8 +5,10 @@ import { use, useState, useEffect } from 'react';
 import { getLessonById, getTopicById } from '@/lib/content';
 import { completeLesson, getProgress, getCustomTopicPackages } from '@/lib/storage';
 import { syncUserProgressToCloud } from '@/lib/cloudStorage';
-import { Lesson, Topic } from '@/lib/types';
+import { Lesson, Topic, LessonDecisionOption } from '@/lib/types';
 import AudioPlayer from '@/components/AudioPlayer';
+import { playWinningSound, playLosingSound } from '@/lib/soundEffects';
+import AiRoleplayModal from '@/components/AiRoleplayModal';
 
 export default function LessonPage({ params }: { params: Promise<{ topicId: string; lessonId: string }> }) {
   const { topicId, lessonId } = use(params);
@@ -14,6 +16,8 @@ export default function LessonPage({ params }: { params: Promise<{ topicId: stri
   const [completed, setCompleted] = useState(false);
   const [lesson, setLesson] = useState<Lesson | undefined>(undefined);
   const [topic, setTopic] = useState<Topic | undefined>(undefined);
+  const [selectedChoice, setSelectedChoice] = useState<LessonDecisionOption | null>(null);
+  const [showRoleplayModal, setShowRoleplayModal] = useState(false);
 
   useEffect(() => {
     let foundLesson = getLessonById(lessonId);
@@ -63,6 +67,7 @@ export default function LessonPage({ params }: { params: Promise<{ topicId: stri
   };
 
   const handleNext = () => {
+    setSelectedChoice(null);
     if (isLastCard) {
       handleComplete();
     } else {
@@ -71,8 +76,18 @@ export default function LessonPage({ params }: { params: Promise<{ topicId: stri
   };
 
   const handlePrev = () => {
+    setSelectedChoice(null);
     if (currentCard > 0) {
       setCurrentCard(prev => prev - 1);
+    }
+  };
+
+  const handleSelectOption = (opt: LessonDecisionOption) => {
+    setSelectedChoice(opt);
+    if (opt.status === 'best' || opt.status === 'good') {
+      playWinningSound();
+    } else {
+      playLosingSound();
     }
   };
 
@@ -130,16 +145,24 @@ export default function LessonPage({ params }: { params: Promise<{ topicId: stri
             <h2>Lesson Complete!</h2>
             <div className="quiz-results-xp">+50 XP</div>
             <p>Great job finishing &quot;{lesson.title}&quot;!</p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 20 }}>
+              <button
+                className="btn btn-primary"
+                onClick={() => setShowRoleplayModal(true)}
+                style={{ background: 'linear-gradient(135deg, #FF3366 0%, #E67E22 100%)', border: 'none' }}
+              >
+                🤖 Practice Live with AI →
+              </button>
               <Link
                 href={`/quiz/${topicId}/${lessonId}`}
-                className="btn btn-primary"
+                className="btn btn-secondary"
               >
-                Take Quiz →
+                Take Quiz 📝
               </Link>
               <Link
                 href={`/topics/${topicId}`}
-                className="btn btn-secondary"
+                className="btn btn-ghost"
               >
                 Back to {topic.name}
               </Link>
@@ -197,6 +220,84 @@ export default function LessonPage({ params }: { params: Promise<{ topicId: stri
                 </div>
               )}
 
+              {/* SmartyMe Interactive Decision Choice Cards */}
+              {card.type === 'choice' && card.options && card.options.length > 0 && (
+                <div style={{ marginTop: 20 }}>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 800, marginBottom: 12, color: 'var(--primary-600)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    👇 Select What You Would Say:
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {card.options.map((opt, idx) => {
+                      const isSelected = selectedChoice?.text === opt.text;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => handleSelectOption(opt)}
+                          className="card card-clickable"
+                          style={{
+                            textAlign: 'left',
+                            padding: '14px 18px',
+                            borderRadius: 14,
+                            border: isSelected
+                              ? opt.status === 'best' || opt.status === 'good'
+                                ? '2px solid var(--primary-500)'
+                                : '2px solid #EF4444'
+                              : '1px solid var(--border-color)',
+                            background: isSelected
+                              ? opt.status === 'best' || opt.status === 'good'
+                                ? 'rgba(16, 185, 129, 0.1)'
+                                : 'rgba(239, 68, 68, 0.1)'
+                              : 'var(--bg-tertiary)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <span style={{
+                              fontWeight: 800,
+                              fontSize: '0.85rem',
+                              background: 'var(--bg-card)',
+                              padding: '2px 8px',
+                              borderRadius: 50,
+                              color: 'var(--text-secondary)'
+                            }}>
+                              Option {String.fromCharCode(65 + idx)}
+                            </span>
+                            {opt.label && (
+                              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: opt.status === 'best' ? '#10B981' : opt.status === 'good' ? '#F59E0B' : '#EF4444' }}>
+                                {opt.label}
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ marginTop: 6, fontWeight: 600, fontSize: '0.95rem' }}>
+                            &ldquo;{opt.text}&rdquo;
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Feedback breakdown card */}
+                  {selectedChoice && (
+                    <div style={{
+                      marginTop: 16,
+                      padding: 16,
+                      borderRadius: 14,
+                      animation: 'scaleIn 0.3s ease-out',
+                      background: selectedChoice.status === 'best' || selectedChoice.status === 'good' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                      border: selectedChoice.status === 'best' || selectedChoice.status === 'good' ? '1px solid var(--primary-500)' : '1px solid #EF4444'
+                    }}>
+                      <div style={{ fontWeight: 800, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {selectedChoice.status === 'best' ? '🌟 Winning Line (+10 Bonus XP!)' : selectedChoice.status === 'good' ? '👍 Good Line' : '❌ Awkward / Low-Status Phrasing'}
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+                        {selectedChoice.explanation}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="card-bottom-progress">
                 <div className="card-bottom-progress-fill" style={{ width: `${progressPct}%` }} />
               </div>
@@ -222,6 +323,15 @@ export default function LessonPage({ params }: { params: Promise<{ topicId: stri
           </>
         )}
       </div>
+
+      {/* AI Roleplay Practice Modal */}
+      {showRoleplayModal && (
+        <AiRoleplayModal
+          scenarioTitle={lesson.title}
+          scenarioDescription={lesson.subtitle}
+          onClose={() => setShowRoleplayModal(false)}
+        />
+      )}
     </div>
   );
 }

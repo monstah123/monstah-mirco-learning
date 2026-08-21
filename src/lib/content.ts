@@ -192,6 +192,34 @@ export const LESSONS: Lesson[] = [
       },
       {
         id: 'rf1-4',
+        type: 'choice',
+        contextHeader: '🎮 Interactive Decision',
+        title: 'What Would You Say Next?',
+        content: 'She laughs at your cafe joke and asks: "Okay smart guy, what coffee would you order for me then?"',
+        emoji: '🎯',
+        options: [
+          {
+            label: 'Too Agreeable',
+            text: 'Oh whatever you like best, I don\'t want to guess wrong!',
+            explanation: 'Over-pleasing drops tension and kills playful banter instantly.',
+            status: 'bad',
+          },
+          {
+            label: 'Safe Response',
+            text: 'I\'ll get you an oat milk latte, that\'s what most people order.',
+            explanation: 'Safe and pleasant, but misses the opportunity for playful connection.',
+            status: 'good',
+          },
+          {
+            label: 'Winning Script',
+            text: 'Double espresso—you clearly need the extra energy to make up your mind!',
+            explanation: 'Maintains playful push-pull banter while making a decisive choice.',
+            status: 'best',
+          },
+        ],
+      },
+      {
+        id: 'rf1-5',
         type: 'keyPoint',
         contextHeader: '🔑 Golden Rule',
         title: 'Key Takeaway',
