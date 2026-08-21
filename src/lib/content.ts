@@ -5,7 +5,7 @@
 import { Topic, Lesson, Quiz } from './types';
 
 // ============ TOPICS ============
-export const TOPICS: Topic[] = [
+const RAW_TOPICS: Topic[] = [
   {
     id: 'relationships',
     name: 'Relationships & Dating',
@@ -2283,9 +2283,23 @@ export const QUIZZES: Quiz[] = [
   { id: 'quiz-psych-imposter', lessonId: 'psych-imposter', topicId: 'psychology', questions: [{ id: 'qpim-1', type: 'multiple_choice', question: 'Who is most affected by imposter syndrome?', options: ['Only beginners', 'Over 70% of high achievers', 'Nobody', 'Only CEOs'], correctIndex: 1, explanation: 'Affects over 70% of high achievers.' }, { id: 'qpim-2', type: 'true_false', question: 'Imposter feelings mean you lack talent.', options: ['True', 'False'], correctIndex: 1, explanation: 'It is proof you are expanding past your comfort zone.' }, { id: 'qpim-3', type: 'multiple_choice', question: 'How to reframe pre-presentation anxiety?', options: ['"I will mess up"', '"I was invited because of my unique value & skills"', '"They hate me"', '"Escape room"'], correctIndex: 1, explanation: 'Evidence-based reframing builds calm authority.' }] },
 ];
 
-// Helper functions
+// Helper functions & Dynamic Export
+export const TOPICS: Topic[] = RAW_TOPICS.map(t => {
+  const count = LESSONS.filter(l => l.topicId === t.id).length;
+  return {
+    ...t,
+    lessonCount: count > 0 ? count : t.lessonCount,
+  };
+});
+
 export function getTopicById(id: string): Topic | undefined {
-  return TOPICS.find(t => t.id === id);
+  const topic = TOPICS.find(t => t.id === id);
+  if (!topic) return undefined;
+  const count = getLessonsByTopic(id).length;
+  return {
+    ...topic,
+    lessonCount: count > 0 ? count : topic.lessonCount,
+  };
 }
 
 export function getLessonsByTopic(topicId: string): Lesson[] {
